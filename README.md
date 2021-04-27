@@ -1,28 +1,28 @@
-# Template Shiny operator for Tercen
+# ps12image overview operator
 
-##### Description
+#### Description
 
-The `Template Shiny operator` is a template repository for the creation of Shiny operators in Tercen.
+`ps12image overview` operator provides a view for filtering and viewing ps12 images.
 
 ##### Usage
 
 Input projection|.
 ---|---
-`x-axis`        | type, description 
-`y-axis`        | type, description 
-`row`           | type, description 
-`column`        | type, description 
-`colors`        | type, description 
-`labels`        | type, description 
+`row`        | is the documentId 
 
 Output relations|.
 ---|---
 `Operator view`        | view of the Shiny application
 
 ##### Details
+This operator is able to perform filtering based on certain properties of tiff images. The filtering options are:
 
-Details on the computation.
+Col, Filter_Exposure Time, Cycle, Quantitation Type, View Type
+
+#### Reference
+
 
 ##### See Also
 
-[template_R_operator](https://github.com/tercen/template_R_operator)
+[ps12image operator](https://github.com/tercen/ps12image_operator)
+

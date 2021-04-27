@@ -1,7 +1,7 @@
 {
-  "name": "Template Shiny Operator",
-  "description": "Template to create a Shiny operator in Tercen.",
-  "tags": ["template"],
+  "name": "PS12 Image Overview Operator",
+  "description": "Filtering and viewing ps12 images in a shiny app.",
+  "tags": ["shiny"],
   "authors": ["tercen"],
-  "urls": ["https://github.com/tercen/template_shiny_operator"]
+  "urls": ["https://github.com/tercen/ps12image_overview_shiny_operator"]
 }

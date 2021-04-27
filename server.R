@@ -28,17 +28,18 @@ shinyServer(function(input, output, session) {
     tagList(
       HTML("<h3><center>Image overview</center></h3>"),
       fluidRow(
+        column(1),
         column(2, selectizeInput("colId", "Col", choices = c())),
         column(2, selectizeInput("exposureTimeId", "Filter_Exposure Time", choices = c())),
         column(2, selectizeInput("cycleId", "Cycle", choices = c())),
         column(2, selectizeInput("quantitationTypeId", "Quantitation Type", choices = c())),
-        column(2, selectizeInput("viewTypeId", "View Type", choices = c()))
+        column(2, selectizeInput("viewTypeId", "View Type", choices = c())),
+        column(1)
       ),
       fluidRow(
         column(12, plotOutput("plot")))
     )
   })
-  
 })
 
 getData <- function(session){
