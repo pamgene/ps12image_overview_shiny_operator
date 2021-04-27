@@ -6,59 +6,48 @@ library(tidyr)
 ############################################
 #### This part should not be included in ui.R and server.R scripts
 getCtx <- function(session) {
-  ctx <- tercenCtx(stepId = "9b7619c7-4d66-49fa-9bb3-2b06209e58e4",
-                   workflowId = "f81d245ef22a2ff192ed2533a6002ec3")
+  options("tercen.workflowId"= "4133245f38c1411c543ef25ea3020c41")
+  options("tercen.stepId"= "2b6d9fbf-25e4-4302-94eb-b9562a066aa5")
+  options("tercen.username"= "admin")
+  options("tercen.password"= "admin")
+  ctx <- tercenCtx()
   return(ctx)
 }
 ####
 ############################################
 
 ui <- shinyUI(fluidPage(
-  
-  titlePanel("Histogram"),
-  
-  sidebarPanel(
-    sliderInput("plotWidth", "Plot width (px)", 200, 2000, 500),
-    sliderInput("plotHeight", "Plot height (px)", 200, 2000, 500),
-  ),
-  
-  mainPanel(
-    uiOutput("reacOut")
-  )
-  
-))
+    uiOutput("reacOut"),
+    title = "Image Overview"))
 
 server <- shinyServer(function(input, output, session) {
   
   dataInput <- reactive({
-    getValues(session)
+    getData(session)
   })
   
   output$reacOut <- renderUI({
-    plotOutput(
-      "main.plot",
-      height = input$plotHeight,
-      width = input$plotWidth
+    tagList(
+      HTML("<h3><center>Image overview</center></h3>"),
+      fluidRow(
+        column(2, selectizeInput("colId", "Col", choices = c())),
+        column(2, selectizeInput("exposureTimeId", "Filter_Exposure Time", choices = c())),
+        column(2, selectizeInput("cycleId", "Cycle", choices = c())),
+        column(2, selectizeInput("quantitationTypeId", "Quantitation Type", choices = c())),
+        column(2, selectizeInput("viewTypeId", "View Type", choices = c()))
+      ),
+      fluidRow(
+        column(12, plotOutput("plot")))
     )
-  }) 
-  
-  output$main.plot <- renderPlot({
-    values <- dataInput()
-    data <- values$data$.y
-    hist(data)
   })
   
 })
 
-getValues <- function(session){
-  ctx <- getCtx(session)
-  values <- list()
-
-  values$data <- ctx %>% select(.y, .ri, .ci) %>%
-    group_by(.ci, .ri) %>%
-    summarise(.y = mean(.y)) # take the mean of multiple values per cell
-
-  return(values)
+getData <- function(session){
+  ctx           <- getCtx(session)
+  # TODO
+  
+  return(NULL)
 }
 
 runApp(shinyApp(ui, server))  

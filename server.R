@@ -21,33 +21,29 @@ getCtx <- function(session) {
 shinyServer(function(input, output, session) {
   
   dataInput <- reactive({
-    getValues(session)
+    getData(session)
   })
   
   output$reacOut <- renderUI({
-    plotOutput(
-      "main.plot",
-      height = input$plotHeight,
-      width = input$plotWidth
+    tagList(
+      HTML("<h3><center>Image overview</center></h3>"),
+      fluidRow(
+        column(2, selectizeInput("colId", "Col", choices = c())),
+        column(2, selectizeInput("exposureTimeId", "Filter_Exposure Time", choices = c())),
+        column(2, selectizeInput("cycleId", "Cycle", choices = c())),
+        column(2, selectizeInput("quantitationTypeId", "Quantitation Type", choices = c())),
+        column(2, selectizeInput("viewTypeId", "View Type", choices = c()))
+      ),
+      fluidRow(
+        column(12, plotOutput("plot")))
     )
-  }) 
-  
-  output$main.plot <- renderPlot({
-    values <- dataInput()
-    data <- values$data$.y
-    hist(data)
   })
   
 })
 
-getValues <- function(session){
-  ctx <- getCtx(session)
-  values <- list()
+getData <- function(session){
+  ctx           <- getCtx(session)
+  # TODO
   
-  values$data <- ctx %>% select(.y, .ri, .ci) %>%
-    group_by(.ci, .ri) %>%
-    summarise(.y = mean(.y)) # take the mean of multiple values per cell
-  
-  return(values)
+  return(NULL)
 }
-
