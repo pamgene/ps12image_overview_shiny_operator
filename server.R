@@ -54,29 +54,38 @@ shinyServer(function(input, output, session) {
   output$plot <- renderPlot({
     df <- dataInput()
     
-    # TODO filtering
-    
-    # convert to png and display in grid
-    tiff_images <- df$Image[1:20]
-    png_img_dir <- "png"
-    if (!dir.exists(png_img_dir)) {
-      dir.create(png_img_dir)
+    # filtering
+    if (input$colId != LOADING_DATA && input$exposureTimeId != LOADING_DATA && input$cycleId != LOADING_DATA) {
+      df <- df %>% 
+        filter(Col == input$colId) %>% 
+        filter(`Exposure Time` == input$exposureTimeId) %>%
+        filter(Cycle == input$cycleId)
+      
+      # convert to png and display in grid
+      if (nrow(df) > 0) {
+        tiff_images <- df$Image
+        png_img_dir <- "png"
+        if (dir.exists(png_img_dir)) {
+          system(paste("rm -rf", png_img_dir))
+        }
+        dir.create(png_img_dir)
+        lapply(seq_along(tiff_images), FUN = function(y, i) {
+          tiff_file <- y[i]
+          png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
+          png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)
+        }, y = tiff_images)
+        
+        png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
+        png_files <- normalizePath(png_files)
+        png_files <- png_files[file.exists(png_files)]
+        pngs      <- lapply(png_files, readPNG)
+        asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
+        nrows     <- 1 + ((length(png_files) - 1) %/% 5)
+        grid.arrange(grobs = asGrobs, nrow = nrows,  
+                     top  = "Barcode", 
+                     left = "Row")
+      }
     }
-    lapply(seq_along(tiff_images), FUN = function(y, i) {
-      tiff_file <- y[i]
-      png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
-      png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)
-    }, y = tiff_images)
-    
-    png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
-    png_files <- normalizePath(png_files)
-    png_files <- png_files[file.exists(png_files)]
-    pngs      <- lapply(png_files, readPNG)
-    asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
-    nrows     <- 1 + ((length(png_files) - 1) %/% 5)
-    grid.arrange(grobs = asGrobs, nrow = nrows,  
-                 top  = "Barcode", 
-                 left = "Row")
   })
   
   observeEvent(values$df, {
