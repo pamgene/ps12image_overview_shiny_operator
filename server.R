@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
       tags$p(),
       fluidRow(
         column(1),
-        column(9, plotOutput("plot", height = "800px")))
+        column(10, plotOutput("plot", height = "800px")))
     )
   })
   
