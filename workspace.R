@@ -59,13 +59,17 @@ server <- shinyServer(function(input, output, session) {
     
     # convert to png and display in grid
     tiff_images <- df$Image[1:3]
+    png_img_dir <- "png"
+    if (!dir.exists(png_img_dir)) {
+      dir.create(png_img_dir)
+    }
     lapply(seq_along(tiff_images), FUN = function(y, i) {
       tiff_file <- y[i]
-      png_file  <- paste0("png/out", i, ".png")
+      png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
       png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)  
     }, y = tiff_images)
     
-    png_files <- list.files(path = "png", pattern = "*.png", full.names = TRUE)
+    png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
     png_files <- normalizePath(png_files)
     png_files <- png_files[file.exists(png_files)]
     pngs      <- lapply(png_files, readPNG)
