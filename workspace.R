@@ -48,7 +48,8 @@ server <- shinyServer(function(input, output, session) {
       ),
       tags$p(),
       fluidRow(
-        column(12, plotOutput("plot")))
+        column(1),
+        column(9, plotOutput("plot", height = "800px")))
     )
   })
   
@@ -58,7 +59,7 @@ server <- shinyServer(function(input, output, session) {
     # TODO filtering
     
     # convert to png and display in grid
-    tiff_images <- df$Image[1:3]
+    tiff_images <- df$Image[1:20]
     png_img_dir <- "png"
     if (!dir.exists(png_img_dir)) {
       dir.create(png_img_dir)
@@ -66,16 +67,18 @@ server <- shinyServer(function(input, output, session) {
     lapply(seq_along(tiff_images), FUN = function(y, i) {
       tiff_file <- y[i]
       png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
-      png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)  
+      png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)
     }, y = tiff_images)
     
     png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
     png_files <- normalizePath(png_files)
     png_files <- png_files[file.exists(png_files)]
     pngs      <- lapply(png_files, readPNG)
-    asGrobs   <- lapply(pngs, rasterGrob)
-    nrows     <- length(tiff_images) %/% 3
-    grid.arrange(grobs=asGrobs, nrow = nrows)
+    asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
+    nrows     <- 1 + ((length(png_files) - 1) %/% 5)
+    grid.arrange(grobs = asGrobs, nrow = nrows,  
+                 top  = "Barcode", 
+                 left = "Row")
   })
   
   observeEvent(values$df, {
