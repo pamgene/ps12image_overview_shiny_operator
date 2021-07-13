@@ -72,7 +72,8 @@ server <- shinyServer(function(input, output, session) {
         lapply(seq_along(tiff_images), FUN = function(y, i) {
           tiff_file <- y[i]
           png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
-          png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file)), png_file)
+          # note we need to shift the input 4 bits to the left -> multiply by 2^4 = 16
+          png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file) * 16), png_file)
         }, y = tiff_images)
         
         png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
