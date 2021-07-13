@@ -1,7 +1,7 @@
 {
   "name": "PS12 Image Overview Operator",
   "description": "Filtering and viewing ps12 images in a shiny app.",
-  "tags": ["shiny"],
+  "tags": ["shiny", "pamgene"],
   "authors": ["tercen"],
   "urls": ["https://github.com/tercen/ps12image_overview_shiny_operator"]
 }
