@@ -8,7 +8,7 @@
 
 Input projection|.
 ---|---
-`row`           | is the documentId of the zip file containing the tiff images
+`col`           | is the documentId of the zip file containing the tiff images
 
 Output relations|.
 ---|---
