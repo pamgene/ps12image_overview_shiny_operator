@@ -227,15 +227,15 @@
     },
     "ijtiff": {
       "Package": "ijtiff",
-      "Version": "2.2.6",
+      "Version": "2.2.7",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "ijtiff",
       "RemoteUsername": "tercen",
-      "RemoteRef": "v2.2.5-pamgene",
-      "RemoteSha": "34553a3845b112d5c93b603ebdb05b05a1d0dfc5",
-      "Hash": "1da45b512f67d8d557a8a82ab294672a"
+      "RemoteRef": "e25e0976ba66dd2f6ddc964a905073a460d1e36c",
+      "RemoteSha": "e25e0976ba66dd2f6ddc964a905073a460d1e36c",
+      "Hash": "e103ac016bbf8171606d09d3efb5d361"
     },
     "jquerylib": {
       "Package": "jquerylib",
