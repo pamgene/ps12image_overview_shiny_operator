@@ -18,11 +18,8 @@ Output relations|.
 
 This operator is expecting a documentId that references to a zip file. The zip file needs to contain a "ImageResults" directory where the Tiff images are stored. The operator will download the images and convert them to PNG, before showing them in a grid. Above the grid, there are a couple filters to determine which images will show up in the grid. These filters are:
 
-* Col
-* Exposure Time
 * Cycle
-* Quantitation Type
-* View Type
+* Exposure Time
 
 ##### See Also
 
