@@ -36,13 +36,10 @@ server <- shinyServer(function(input, output, session) {
     tagList(
       HTML("<h3><center>Image overview</center></h3>"),
       fluidRow(
-        column(1),
-        column(2, selectizeInput("colId", "Col", choices = c(LOADING_DATA))),
-        column(2, selectizeInput("exposureTimeId", "Filter_Exposure Time", choices = c(LOADING_DATA))),
+        column(2),
         column(2, selectizeInput("cycleId", "Cycle", choices = c(LOADING_DATA))),
-        column(2, selectizeInput("quantitationTypeId", "Quantitation Type", choices = c(LOADING_DATA))),
-        column(2, selectizeInput("viewTypeId", "View Type", choices = c(LOADING_DATA))),
-        column(1)
+        column(2, selectizeInput("exposureTimeId", "Filter_Exposure Time", choices = c(LOADING_DATA))),
+        column(2)
       ),
       tags$p(),
       fluidRow(
@@ -55,9 +52,8 @@ server <- shinyServer(function(input, output, session) {
     df <- dataInput()
     
     # filtering
-    if (input$colId != LOADING_DATA && input$exposureTimeId != LOADING_DATA && input$cycleId != LOADING_DATA) {
-      df <- df %>% 
-        filter(Col == input$colId) %>% 
+    if (input$exposureTimeId != LOADING_DATA && input$cycleId != LOADING_DATA) {
+      df <- df %>%
         filter(`Exposure Time` == input$exposureTimeId) %>%
         filter(Cycle == input$cycleId)
       
@@ -81,7 +77,7 @@ server <- shinyServer(function(input, output, session) {
         png_files <- png_files[file.exists(png_files)]
         pngs      <- lapply(png_files, readPNG)
         asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
-        nrows     <- 1 + ((length(png_files) - 1) %/% 5)
+        nrows     <- length(unique(df$Row))
         grid.arrange(grobs = asGrobs, nrow = nrows,  
                      top  = "Barcode", 
                      left = "Row")
@@ -91,11 +87,8 @@ server <- shinyServer(function(input, output, session) {
   
   observeEvent(values$df, {
     df <- values$df
-    updateSelectizeInput(session, "colId", choices = sort(unique(df$Col)))
-    updateSelectizeInput(session, "exposureTimeId", choices = sort(unique(df$`Exposure Time`)))
     updateSelectizeInput(session, "cycleId", choices = sort(unique(df$Cycle)))
-    updateSelectizeInput(session, "quantitationTypeId", choices = c("Image"))
-    updateSelectizeInput(session, "viewTypeId", choices = c("Barcode - Row"))
+    updateSelectizeInput(session, "exposureTimeId", choices = sort(unique(df$`Exposure Time`)))
   })
 })
 
