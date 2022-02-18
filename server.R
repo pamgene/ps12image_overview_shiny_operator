@@ -48,6 +48,12 @@ server <- shinyServer(function(input, output, session) {
     )
   })
   
+  get_plot_width <- reactive({
+    df    <- dataInput()
+    ncols <- length(unique(df$Barcode))
+    ncols * 300
+  })
+  
   output$plot <- renderPlot({
     df <- dataInput()
     
@@ -88,7 +94,7 @@ server <- shinyServer(function(input, output, session) {
         grid.draw(combinedPlot)
       }
     }
-  })
+  }, width = get_plot_width)
   
   observeEvent(values$df, {
     df <- values$df
