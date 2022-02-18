@@ -44,14 +44,20 @@ server <- shinyServer(function(input, output, session) {
       tags$p(),
       fluidRow(
         column(1),
-        column(10, plotOutput("plot", height = "800px")))
+        column(10, plotOutput("plot")))
     )
   })
   
   get_plot_width <- reactive({
     df    <- dataInput()
     ncols <- length(unique(df$Barcode))
-    ncols * 300
+    ncols * 270
+  })
+  
+  get_plot_height <- reactive({
+    df    <- dataInput()
+    nrows <- length(unique(df$Row))
+    nrows * 200
   })
   
   output$plot <- renderPlot({
@@ -85,7 +91,7 @@ server <- shinyServer(function(input, output, session) {
         asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
         nrows     <- length(unique(df$Row))
         c_titles  <- unique(df$Barcode)
-        r_titles  <- paste("Row", seq(nrows))
+        r_titles  <- as.character(seq(nrows))
         theme     <- ttheme_minimal(base_size = 16)
         combinedPlot <- rbind(tableGrob(t(c_titles), theme = theme, rows = ""), 
                               cbind(tableGrob(r_titles, theme = theme), 
@@ -94,7 +100,7 @@ server <- shinyServer(function(input, output, session) {
         grid.draw(combinedPlot)
       }
     }
-  }, width = get_plot_width)
+  }, height = get_plot_height, width = get_plot_width)
   
   observeEvent(values$df, {
     df <- values$df
