@@ -78,9 +78,14 @@ server <- shinyServer(function(input, output, session) {
         pngs      <- lapply(png_files, readPNG)
         asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
         nrows     <- length(unique(df$Row))
-        grid.arrange(grobs = asGrobs, nrow = nrows,  
-                     top  = "Barcode", 
-                     left = "Row")
+        c_titles  <- unique(df$Barcode)
+        r_titles  <- paste("Row", seq(nrows))
+        theme     <- ttheme_minimal(base_size = 16)
+        combinedPlot <- rbind(tableGrob(t(c_titles), theme = theme, rows = ""), 
+                              cbind(tableGrob(r_titles, theme = theme), 
+                                    arrangeGrob(grobs = asGrobs), size = "last"), size = "last")
+        grid.newpage()
+        grid.draw(combinedPlot)
       }
     }
   })
