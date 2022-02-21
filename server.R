@@ -51,7 +51,7 @@ server <- shinyServer(function(input, output, session) {
   get_plot_width <- reactive({
     df    <- dataInput()
     ncols <- length(unique(df$Barcode))
-    ncols * 270
+    ncols * 300
   })
   
   get_plot_height <- reactive({
@@ -90,11 +90,13 @@ server <- shinyServer(function(input, output, session) {
         pngs      <- lapply(png_files, readPNG)
         asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
         nrows     <- length(unique(df$Row))
-        c_titles  <- unique(df$Barcode)
-        r_titles  <- as.character(seq(nrows))
+        c_titles  <- c("Row / Barcode", unique(df$Barcode))
+        r_titles  <- paste(as.character(seq(nrows)), "                     ")
+        r_header  <- rep("", length(r_titles))
         theme     <- ttheme_minimal(base_size = 16)
         combinedPlot <- rbind(tableGrob(t(c_titles), theme = theme, rows = ""), 
-                              cbind(tableGrob(r_titles, theme = theme), 
+                              cbind(tableGrob(r_header, theme = theme), 
+                                    tableGrob(r_titles, theme = theme), 
                                     arrangeGrob(grobs = asGrobs), size = "last"), size = "last")
         grid.newpage()
         grid.draw(combinedPlot)
