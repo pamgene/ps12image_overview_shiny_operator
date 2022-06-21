@@ -421,10 +421,22 @@
     },
     "tercen": {
       "Package": "tercen",
-      "Version": "0.10.8",
+      "Version": "0.12.8",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "teRcen",
+      "RemoteUsername": "tercen",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "062b50c43e43ea18d6853c9bb4624ae32a62acf8",
+      "Hash": "110158ff689ff1ce6857b241312ad928"
+    },
+    "tercenApi": {
+      "Package": "tercenApi",
+      "Version": "0.12.8",
       "Source": "Repository",
       "Repository": "TERCEN",
-      "Hash": "7676dd098faf9b2267411f8f129f5d8b"
+      "Hash": "e92d54419184d7f403d082988a3c41c3"
     },
     "tibble": {
       "Package": "tibble",
@@ -460,6 +472,13 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "4a5081acfb7b81a572e4384a7aaf2af1"
+    },
+    "uuid": {
+      "Package": "uuid",
+      "Version": "1.1-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f1cb46c157d080b729159d407be83496"
     },
     "vctrs": {
       "Package": "vctrs",

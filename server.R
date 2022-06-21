@@ -72,16 +72,21 @@ server <- shinyServer(function(input, output, session) {
       # convert to png and display in grid
       if (nrow(df) > 0) {
         tiff_images <- df$Image
-        png_img_dir <- "png"
+        png_img_dir <- paste0( tempdir(), "/png")
         if (dir.exists(png_img_dir)) {
           system(paste("rm -rf", png_img_dir))
         }
+        
         dir.create(png_img_dir)
+        
+        
+        
         lapply(seq_along(tiff_images), FUN = function(y, i) {
           tiff_file <- y[i]
           png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
           # note we need to shift the input 4 bits to the left -> multiply by 2^4 = 16
           png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file) * 16), png_file)
+          session$onSessionEnded(function(){ unlink(png_file)  })
         }, y = tiff_images)
         
         png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
