@@ -56,6 +56,7 @@ server <- shinyServer(function(input, output, session) {
   
   get_plot_height <- reactive({
     df    <- dataInput()
+    
     nrows <- length(unique(df$Row))
     nrows * 200
   })
@@ -109,8 +110,19 @@ server <- shinyServer(function(input, output, session) {
   
   observeEvent(values$df, {
     df <- values$df
-    updateSelectizeInput(session, "cycleId", choices = sort(unique(df$Cycle)))
-    updateSelectizeInput(session, "exposureTimeId", choices = sort(unique(df$`Exposure Time`)))
+
+    if( input$cycleId == LOADING_DATA && input$exposureTimeId == LOADING_DATA){
+      sorted_cycles <- sort(unique(df$Cycle))
+      sorted_exp_time <- sort(unique(df$`Exposure Time`))
+      updateSelectizeInput(session, "cycleId", choices = sorted_cycles,
+                           selected = sorted_cycles[length(sorted_cycles)])
+      updateSelectizeInput(session, "exposureTimeId", choices = sorted_exp_time,
+                           selected = sorted_exp_time[length(sorted_exp_time)])
+    }else{
+      updateSelectizeInput(session, "cycleId", choices = sort(unique(df$Cycle)))
+      updateSelectizeInput(session, "exposureTimeId", choices = sort(unique(df$`Exposure Time`)))  
+    }
+    
   })
 })
 
