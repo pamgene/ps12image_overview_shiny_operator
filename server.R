@@ -8,6 +8,8 @@ library(gridExtra)
 library(png)
 library(grid)
 
+
+
 ############################################
 #### This part should not be modified
 getCtx <- function(session) {
@@ -80,15 +82,23 @@ server <- shinyServer(function(input, output, session) {
         
         dir.create(png_img_dir)
         
+        #Order images by Well (W1, W1, W1, W2, W2, W2) then I
+        orderStr <- unlist(lapply(tiff_images, function(x){
+          paste0(
+            strsplit(basename(x), "_")[[1]][2], 
+            "_",
+            strsplit(basename(x), "_")[[1]][6])
+        }))
         
+        imgIdx <- sort(orderStr, index.return=T)
         
-        lapply(seq_along(tiff_images), FUN = function(y, i) {
+        lapply(seq_along(tiff_images[imgIdx$ix]), FUN = function(y, i) {
           tiff_file <- y[i]
-          png_file  <- file.path(png_img_dir, paste0("out", i, ".png"))
+          png_file  <- file.path(png_img_dir, paste0("out", formatC(i, width=3, flag="0") , ".png"))
           # note we need to shift the input 4 bits to the left -> multiply by 2^4 = 16
           png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file) * 16), png_file)
           session$onSessionEnded(function(){ unlink(png_file)  })
-        }, y = tiff_images)
+        }, y = tiff_images[imgIdx$ix])
         
         png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
         png_files <- normalizePath(png_files)
@@ -134,6 +144,7 @@ LOADING_DATA <- "Loading data"
 
 get_file_tags <- function(filename) {
   tags <- NULL
+
   all_tags <- suppressWarnings(ijtiff::read_tags(filename))
   if (!is.null(all_tags) && !is.null(names(all_tags)) && "frame1" %in% names(all_tags)) {
     tags <- all_tags$frame1
@@ -145,6 +156,7 @@ get_file_tags <- function(filename) {
 
 doc_to_data <- function(df, ctx){
   #1. extract files
+  
   docId = df$documentId[1]
   doc = ctx$client$fileService$get(docId)
   filename = tempfile()
@@ -177,6 +189,7 @@ doc_to_data <- function(df, ctx){
 
 getData <- function(session){
   ctx = getCtx(session)
+  
   if (!any(ctx$cnames == "documentId")) stop("Column factor documentId is required") 
   
   result <- ctx$cselect() %>%
