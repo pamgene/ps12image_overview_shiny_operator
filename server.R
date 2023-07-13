@@ -10,6 +10,7 @@ library(grid)
 
 
 
+
 ############################################
 #### This part should not be modified
 getCtx <- function(session) {
@@ -92,11 +93,29 @@ server <- shinyServer(function(input, output, session) {
         
         imgIdx <- sort(orderStr, index.return=T)
         
+        factor <- 1
+        targetMedian <- 0.25
+        offsets <- seq(-0.3, 3, 0.1)
+        med <- c()
+        tiffImg <- suppressWarnings(tiff::readTIFF(tiff_images[imgIdx$ix[1]]) * 16)
+        for( k in seq(1, length(offsets))){
+          factorOff <- offsets[k]
+          tmp <- tiffImg * (factor + factorOff)
+          tmp[tmp>1] <- 1
+          
+          med <-  append(med, median(tmp * (factor + factorOff)) )
+        }
+        d <- abs(targetMedian - med)
+        facAdj <- offsets[which( d == min(d))]
+        
         lapply(seq_along(tiff_images[imgIdx$ix]), FUN = function(y, i) {
           tiff_file <- y[i]
           png_file  <- file.path(png_img_dir, paste0("out", formatC(i, width=3, flag="0") , ".png"))
           # note we need to shift the input 4 bits to the left -> multiply by 2^4 = 16
-          png::writePNG(suppressWarnings(tiff::readTIFF(tiff_file) * 16), png_file)
+          
+          tiffImg <- suppressWarnings(tiff::readTIFF(tiff_file) * 16) * (factor + facAdj)
+          tiffImg[tiffImg>1] <- 1
+          png::writePNG(tiffImg, png_file)
           session$onSessionEnded(function(){ unlink(png_file)  })
         }, y = tiff_images[imgIdx$ix])
         
