@@ -10,7 +10,6 @@ library(grid)
 
 
 
-
 ############################################
 #### This part should not be modified
 getCtx <- function(session) {
@@ -25,6 +24,24 @@ getCtx <- function(session) {
 }
 ####
 ############################################
+
+get_barcode <- function(img){
+  
+    tmp <- stringr::str_split( img, "/" )[[1]]
+    tmp <- tmp[[length(tmp)]]
+    tmp <- stringr::str_split( tmp, "_" )[[1]][1]
+    return(tmp)
+}
+
+get_well <- function(img){
+    tmp <- stringr::str_split( img, "/" )[[1]]
+    tmp <- tmp[[length(tmp)]]
+    tmp <- stringr::str_split( tmp, "_" )[[1]][2]
+    #tmp <- substr(tmp,2,2)
+    
+    return(tmp)
+}
+
 
 server <- shinyServer(function(input, output, session) {
   
@@ -108,29 +125,64 @@ server <- shinyServer(function(input, output, session) {
         d <- abs(targetMedian - med)
         facAdj <- offsets[which( d == min(d))]
         
-        lapply(seq_along(tiff_images[imgIdx$ix]), FUN = function(y, i) {
-          tiff_file <- y[i]
-          png_file  <- file.path(png_img_dir, paste0("out", formatC(i, width=3, flag="0") , ".png"))
-          # note we need to shift the input 4 bits to the left -> multiply by 2^4 = 16
-          
-          tiffImg <- suppressWarnings(tiff::readTIFF(tiff_file) * 16) * (factor + facAdj)
-          tiffImg[tiffImg>1] <- 1
-          png::writePNG(tiffImg, png_file)
-          session$onSessionEnded(function(){ unlink(png_file)  })
-        }, y = tiff_images[imgIdx$ix])
+        #TODO Map file names to specific row and column (gaps might exist)
+        nrows     <- length(unique(df$Row))
+        c_titles  <- unique(df$Barcode)
+        r_titles  <- as.character(seq(nrows))
         
+        barcodes <- unlist(lapply(tiff_images, function(img){
+          get_barcode(img)}))
+        rows <- unlist(lapply(tiff_images, function(img){
+          get_well(img)}))
+        
+        # Create a default, blank image for datasets with missing barcode or row
+        tiff_file <- tiff_images[1]
+        tiffImg <- suppressWarnings(tiff::readTIFF(tiff_file) * 16) * (factor + facAdj)
+        blankTiffImg <- tiffImg * 0 + 1
+        
+        plotIdx <- 1
+        
+        # Grid is filled barcode (column) first
+        for( r in seq(1, length(r_titles))){
+          row = paste0("W", r_titles[r])
+          for( c in seq(1, length(c_titles))){
+            barcode = c_titles[c]
+
+            idx <- which(unlist(lapply(tiff_images, function(img){
+              imgBc <- get_barcode(img)
+              imgW <- get_well(img)
+              
+              grepl(imgBc, barcode) && grepl(imgW, row)
+            })))
+            
+            png_file  <- file.path(png_img_dir, paste0("out", formatC(plotIdx, width=3, flag="0") , ".png"))
+            
+            if(length(idx) == 0){
+              png::writePNG(blankTiffImg, png_file)
+            }else{
+              tiff_file <- tiff_images[idx]  
+              tiffImg <- suppressWarnings(tiff::readTIFF(tiff_file) * 16) * (factor + facAdj)
+              tiffImg[tiffImg>1] <- 1
+              png::writePNG(tiffImg, png_file)
+            }
+            session$onSessionEnded(function(){ unlink(png_file)  })
+            
+            plotIdx <- plotIdx + 1
+          }
+        }
+
         png_files <- list.files(path = png_img_dir, pattern = "*.png", full.names = TRUE)
         png_files <- normalizePath(png_files)
         png_files <- png_files[file.exists(png_files)]
         pngs      <- lapply(png_files, readPNG)
         asGrobs   <- lapply(pngs, FUN = function(png) { rasterGrob(png, height = 0.99)  })
-        nrows     <- length(unique(df$Row))
-        c_titles  <- unique(df$Barcode)
-        r_titles  <- as.character(seq(nrows))
-        theme     <- ttheme_minimal(base_size = 16)
+        
+        theme     <- ttheme_minimal(base_size = 16 )
+
         combinedPlot <- rbind(tableGrob(t(c_titles), theme = theme, rows = ""), 
                               cbind(tableGrob(r_titles, theme = theme),
                                     arrangeGrob(grobs = asGrobs, nrow = nrows), size = "last"), size = "last")
+        
         grid.newpage()
         grid.draw(combinedPlot)
       }
@@ -187,6 +239,9 @@ doc_to_data <- function(df, ctx){
     tmpdir <- tempfile()
     unzip(filename, exdir = tmpdir)
     f.names <- list.files(file.path(list.files(tmpdir, full.names = TRUE), "ImageResults"), full.names = TRUE)
+    if(length(f.names) == 0){
+      f.names <- list.files(file.path(list.files(tmpdir, full.names = TRUE)), full.names = TRUE)  
+    }
   } else {
     f.names <- filename
   }
