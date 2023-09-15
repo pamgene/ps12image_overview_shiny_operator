@@ -2,7 +2,7 @@
 
 #### Description
 
-`ps12image overview` operator provides a view for filtering and viewing ps12 images. 
+`ps12image overview` operator provides a view for filtering and viewing ps12 images.
 
 ##### Usage
 
